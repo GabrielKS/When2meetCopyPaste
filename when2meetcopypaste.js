@@ -167,15 +167,23 @@ function doPrompt() {
     /* Maximum number of characters we can pre-populate prompt() with -- experimentally determined to be 2000 on Chrome and more than that on Firefox and Safari */
     const charLimit = 2000;
 
+    if (typeof UserID == "undefined" || typeof AvailableAtSlot == "undefined" || typeof TimeOfSlot == "undefined") {
+        if (location.hostname.split(".").reverse().slice(0, 2).join(".") == "com.when2meet") alert("Your version of this tool seems to no longer work. Please try reinstalling.");
+        else alert("You need to be looking at a When2meet schedule to use this tool.")
+        return;
+    }
+
     if (!UserID) {
         alert("To use this tool, you must be signed in.");
         return -2;
     }
+
     const before = myStringify(compressTimeAvail(getCurrent()));
     if (before.length > charLimit) {
         alert("Unfortunately, your schedule is too large to work with this tool. :(");
         return -2;
     }
+    
     const after = prompt("Here is the schedule, which may be copied, pasted, and edited. Press 'Cancel' to discard changes or 'OK' to save changes.", before);
     if (!after) return 0;
     try {
