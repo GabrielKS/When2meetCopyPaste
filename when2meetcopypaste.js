@@ -3,6 +3,15 @@ javascript:(function() {
  * Bookmarklet for use at <https://www.when2meet.com/> allowing one to copy and paste data between schedules so that one doesn't have to manually enter this data so much.
  * Written in a few hours and not extensively tested. Will probably be updated in the future with bugfixes, documentation, and a better user interface.
  * Currently very dependent on When2meet implementation details.
+ * 
+ * TO USE:
+ *  1. Create a new bookmark on your bookmarks bar pointing to an arbitrary page.
+ *  2. Delete the "URL" of the bookmark and instead paste in this entire file.
+ *  3. Edit the name of the bookmark as desired.
+ *  4. When you have a When2meet schedule open and you are signed in to it, you can click the bookmark to activate the tool.
+ *  5. When used, the tool brings up a dialog where you can view and edit the schedule in text form.
+ *  6. You can use the browser's built-in copy and paste functionality to copy and paste this schedule between multiple When2meet schedules.
+ *  7. Click 'Cancel' to discard changes or 'OK' to save them.
  */
 
 /**
@@ -64,33 +73,70 @@ function setCurrent(ta) {
 }
 
 /* Chrome only allows us to pre-populate prompt() with a maximum of 2000 characters. Thus, if we want to use prompt() as our user interface, we must compress.
- * In the long term, we... probably don't want to use prompt() as our user interface, but it's nice and simple and elegant for now.
- * Even with this compression, the stringified JSON may be too long if the schedule is very large. */
-
-/* Every timestamp can be represented as o*step+i*step, where o is a constant integer offset and i is some integer. */
-const step = 900;
+ * In the long term, we might not want to use prompt() as our user interface, but it's nice and simple and elegant for now.
+ * The current compression algorithm suffices for all but the largest schedules (which no one should be using anyway). It's easily possible to encode multiple schedule blocks in one character, which would allow us to handle the largest schedules currently possible, but right now I don't think this is worth sacrificing the readability of the schedule JSON for.
+ */
 
 /**
  * Compress from the timeAvail data structure
+ * The basic strategy here is to find the "intervals" (which in practice correspond to days) on which there is a schedule block every 15 minutes, and then encode the availability for each interval as a string of 0s and 1s.
  */
 function compressTimeAvail(ta) {
-    const offset = Math.min(...Object.keys(ta).map(s => parseInt(s)))/step;
-    const compressed = {"t0": offset, "ts": step, "ty": [], "tn": []};
+    /* Every timestamp can be represented as o*step+i*step, where o is a constant integer offset and i is some integer. */
+    const step = 900;
+
+    const allTimes = [];
     for (const time in ta) {
-        (ta[time] ? compressed.ty : compressed.tn).push((time/step-offset));
+        allTimes.push(parseInt(time));
     }
-    return compressed;
+    allTimes.sort();
+
+    intervalOffsets = [];
+    intervalLengths = [];
+    var prevTime = NaN;
+    var startI = NaN;
+    for (var i = 0; i < allTimes.length; i++) {
+        const time = allTimes[i];
+        if (time != prevTime+step) {
+            intervalOffsets.push(time);
+            if (i != 0) intervalLengths.push(i-startI);
+            startI = i;
+        }
+        prevTime = time;
+    }
+    intervalLengths.push(allTimes.length-startI);
+
+    intervalStrings = [];
+    for (var i = 0; i < intervalOffsets.length; i++) {
+        const thisOffset = intervalOffsets[i];
+        const thisLength = intervalLengths[i];
+        var thisString = "";
+        for (var j = 0; j < thisLength; j++) {
+            const time = thisOffset+(j*step);
+            thisString += (ta[time] ? "1" : "0");
+        }
+        intervalStrings[i] = thisString;
+    }
+
+    const intervals = [];
+    for (var i = 0; i < intervalOffsets.length; i++) {
+        intervals.push({"offset": intervalOffsets[i], "avail": intervalStrings[i]});
+    }
+
+    return {"step": step, "intervals": intervals};
 }
 
 /**
  * Decompress to the timeAvail data structure
  */
 function decompressTimeAvail(compressed) {
-    const offset = compressed.t0;
-    const thisStep = compressed.ts;
-    const ta = {"a": "b"};
-    for (const time of compressed.ty) ta[(time+offset)*thisStep] = true;
-    for (const time of compressed.tn) ta[(time+offset)*thisStep] = false;
+    const ta = {};
+    const step = compressed.step;
+    for (const interval of compressed.intervals) {
+        for (var i = 0; i < interval.avail.length; i++) {
+            ta[interval.offset+(i*step)] = (interval.avail[i] != "0");
+        }
+    }
     return ta;
 }
 
@@ -106,9 +152,6 @@ function myStringify(toStringify) {
     return result;
 }
 
-/* Maximum number of characters we can pre-populate prompt() with -- experimentally determined to be 2000 on Chrome */
-const charLimit = 2000;
-
 /**
  * The user interface!
  *  1. If there is no current user, generates an error message and returns -2
@@ -121,6 +164,9 @@ const charLimit = 2000;
  *      b. If input does not validate, state is not changed and we return -1
  */
 function doPrompt() {
+    /* Maximum number of characters we can pre-populate prompt() with -- experimentally determined to be 2000 on Chrome and more than that on Firefox and Safari */
+    const charLimit = 2000;
+
     if (!UserID) {
         alert("To use this tool, you must be signed in.");
         return -2;
@@ -137,6 +183,7 @@ function doPrompt() {
         const decompressed = decompressTimeAvail(parsed);
         if (!setCurrent(decompressed)) return -1;
     } catch(e) {
+        console.error(e);
         return -1;
     }
     return 1;
