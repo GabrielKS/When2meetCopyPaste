@@ -14,13 +14,36 @@ In general, it is not a great idea to run code you don't understand from an untr
 
 # Installation
 ### The easy way
-<div id="installation">
-Please go [here](https://gabrielks.github.io/When2meetCopyPaste/), where you will find a page much like this one containing a link you can just drag and drop to your bookmarks bar to install.
+<div id="installation-blurb">
+Please go <a href="https://gabrielks.github.io/When2meetCopyPaste/#the-easy-way">here</a>, where you will find a page much like this one containing a link you can just drag and drop to your bookmarks bar to install.
 </div>
+
+<script>
+    (function() {
+        document.getElementById("installation-blurb").innerHTML = "Loading…. If this doesn't load, please use the other installation method."
+        const xr = new XMLHttpRequest();
+        function loadInstallationBlurb() {
+            if (xr.readyState != xr.DONE) return;
+            if (xr.status == 200) {
+                const response = xr.responseText;
+                const contents = "Just drag the following link to your boomarks bar: <a id=\"bookmarklet\" href=\"javascript:(function() {alert('Error! Please use the other installation method. :(')})();\">W2MCV</a>. You may then rename the bookmark if you like.";
+                document.getElementById("installation-blurb").innerHTML = contents;
+                document.getElementById("bookmarklet").href = response;
+            }
+            else {
+                document.getElementById("installation-blurb").innerHTML = "Error! Please use the other installation method. :("
+            }
+        }
+        xr.onreadystatechange = loadInstallationBlurb;
+        xr.open("GET", "https://gabrielks.github.io/When2meetCopyPaste/when2meetcopypaste.js");
+        xr.send();
+    })();
+</script>
+
 ### The hard way
 If that isn't working for you or you'd like to supervise the process in more detail, follow these steps:
  1. Create a new bookmark on your bookmarks bar pointing to an arbitrary page.
- 2. Delete the "URL" of the bookmark and instead paste in [this](https://raw.githubusercontent.com/GabrielKS/When2meetCopyPaste/main/when2meetcopypaste.js) entire file.
+ 2. Delete the "URL" of the bookmark and instead paste in [this](https://gabrielks.github.io/When2meetCopyPaste/when2meetcopypaste.js) entire file.
  3. Edit the name of the bookmark as desired.
 
 # Use
