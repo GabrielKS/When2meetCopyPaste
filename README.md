@@ -32,7 +32,9 @@ This tool was created by Gabriel Konar-Steenberg. You can:
  * View my other projects on my [GitHub page](https://github.com/GabrielKS)
  * Learn more about me on my [LinkedIn page](https://www.linkedin.com/in/gabriel-konar-steenberg/)
 
+--
 
+This part enables the bookmarklet drag-and-drop functionality in the other page:
 <script>
     <!--
         (function() {
