@@ -9,7 +9,7 @@ When2meetCopyPaste is structured as a "[bookmarklet](https://en.wikipedia.org/wi
 
 ## Seems unsafe…
 In general, it is not a great idea to run code you don't understand from an untrusted source.
- 1. That's one of the reasons I haven't obfuscated or minimized my code at all (I even left the comments in), so you can look at it and understand exactly what's going on.
+ 1. That's one of the reasons I haven't obfuscated or minimized [my code](https://github.com/GabrielKS/When2meetCopyPaste) at all (I even left the comments in), so you can look at it and understand exactly what's going on.
  2. In any case, the code is running within the When2meet page, not loose on your computer, so you only need to trust me as much as you trust the makers of the When2meet page itself.
 
 # Installation
