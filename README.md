@@ -32,6 +32,7 @@ This tool was created by Gabriel Konar-Steenberg. You can:
  * View my other projects on my [GitHub page](https://github.com/GabrielKS)
  * Learn more about me on my [LinkedIn page](https://www.linkedin.com/in/gabriel-konar-steenberg/)
 
+
 <script>
     <!--
         (function() {

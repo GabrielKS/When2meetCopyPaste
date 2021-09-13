@@ -169,7 +169,7 @@ function doPrompt() {
 
     if (typeof UserID == "undefined" || typeof AvailableAtSlot == "undefined" || typeof TimeOfSlot == "undefined") {
         if (location.hostname.split(".").reverse().slice(0, 2).join(".") == "com.when2meet") alert("Your version of this tool seems to no longer work. Please try reinstalling.");
-        else alert("You need to be looking at a When2meet schedule to use this tool.")
+        else alert("You need to be looking at a When2meet schedule to use this tool.");
         return;
     }
 
@@ -183,7 +183,7 @@ function doPrompt() {
         alert("Unfortunately, your schedule is too large to work with this tool. :(");
         return -2;
     }
-    
+
     const after = prompt("Here is the schedule, which may be copied, pasted, and edited. Press 'Cancel' to discard changes or 'OK' to save changes.", before);
     if (!after) return 0;
     try {
